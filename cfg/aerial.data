@@ -1,0 +1,7 @@
+classes = 5
+train = aerial/train.txt
+valid = aerial/test.txt
+names = cfg/aerial.names
+backup = backup
+gpus = 0
+
