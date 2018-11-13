@@ -213,6 +213,7 @@ def train(epoch):
     model.train()
     t1 = time.time()
     avg_time = torch.zeros(9)
+    
     for batch_idx, (data, target) in enumerate(train_loader):
         t2 = time.time()
         adjust_learning_rate(optimizer, processed_batches)

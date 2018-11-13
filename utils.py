@@ -217,7 +217,9 @@ def plot_boxes_cv2(img, boxes, savename=None, class_names=None, color=None):
     width = img.shape[1]
     height = img.shape[0]
     for i in range(len(boxes)):
+        
         box = boxes[i]
+        box = [ b.item() for b in box]
         x1 = int(round((box[0] - box[2]/2.0) * width))
         y1 = int(round((box[1] - box[3]/2.0) * height))
         x2 = int(round((box[0] + box[2]/2.0) * width))
@@ -254,10 +256,9 @@ def drawtext(img, pos, text, bgcolor=(255,255,255), font=None):
     if font is None:
         font = ImageFont.load_default().font
     (tw, th) = font.getsize(text)
-    box_img = Image.new('RGBA', (tw+2, th+2), bgcolor)
+    box_img = Image.new('RGBA', (tw, th), bgcolor)
     ImageDraw.Draw(box_img).text((0, 0), text, fill=(0,0,0,255), font=font)
-    img.paste(box_img, (pos[0], pos[1]-th-2))
-
+    img.paste(box_img, (round(pos[0].item()), round(pos[1].item())))
 def plot_boxes(img, boxes, savename=None, class_names=None):
     colors = torch.FloatTensor([[1,0,1],[0,0,1],[0,1,1],[0,1,0],[1,1,0],[1,0,0]])
     def get_color(c, x, max_val):

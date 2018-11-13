@@ -1,12 +1,11 @@
 import numpy as np
-import cv2
 import math
 import os
 import argparse
-
+from PIL import Image, ImageOps
 
 def img_to_square(img):
-    h, w, d = img.shape
+    w, h = img.size
     padding_right = 0
     padding_bottom = 0
     if w % 32 != 0:
@@ -15,13 +14,15 @@ def img_to_square(img):
         padding_bottom = new_w - h
     else:
         padding_bottom = w - h
-    new_img = cv2.copyMakeBorder(img, 0 , padding_bottom, 0, padding_right, cv2.BORDER_CONSTANT, value=[0,0,0])
-    
+
+    border = (0, 0, padding_right, padding_bottom)
+    # new_img =cv2.copyMakeBorder(img, 0 , padding_bottom, 0, padding_right, cv2.BORDER_CONSTANT, value=[0,0,0])
+    new_img = ImageOps.expand(img, border=border,fill='black')
     return new_img
 
 def img_to_32_multiplier(img):
     
-    h, w, d = img.shape
+    w, h= img.size
     padding_right = 0
     padding_bottom = 0
     if w % 32 != 0:
@@ -30,8 +31,9 @@ def img_to_32_multiplier(img):
     if h % 32 != 0:
         new_h = math.ceil(h /32) * 32
         padding_bottom = new_h - h
-    new_img = cv2.copyMakeBorder(img, 0 , padding_bottom, 0, padding_right, cv2.BORDER_CONSTANT, value=[0,0,0])
-    
+    border = (0, 0, padding_right, padding_bottom)
+    # new_img = cv2.copyMakeBorder(img, 0 , padding_bottom, 0, padding_right, cv2.BORDER_CONSTANT, value=[0,0,0])
+    new_img = ImageOps.expand(img, border=border,fill='black')
     return new_img
 
 if __name__ == "__main__":
@@ -46,16 +48,19 @@ if __name__ == "__main__":
     img_list = [ img for img in os.listdir(opt.src_path) if img.endswith(included_extention)]
 
     for img_name in img_list:
-        img = cv2.imread(os.path.join(opt.src_path, img_name))
-        if opt.method == "32er":
+        # img = cv2.imread(os.path.join(opt.src_path, img_name))
+        img = Image.open(os.path.join(opt.src_path, img_name))
+        if opt.method == "m32":
             new_path = os.path.join(opt.output_path,img_name.split(".")[0] + "_m32.jpg")
             new_img = img_to_32_multiplier(img)
-            cv2.imwrite(new_path, new_img)
+            # cv2.imwrite(new_path, new_img)
+            new_img.save(new_path)
             print("Save images to {}".format(new_path))
         else:
             new_path = os.path.join(opt.output_path,img_name.split(".")[0] + "_squared.jpg")
             new_img = img_to_square(img)
-            cv2.imwrite(new_path, new_img)
+            # cv2.imwrite(new_path, new_img)
+            new_img.save(new_path)
             print("Save images to {}".format(new_path))
 
     

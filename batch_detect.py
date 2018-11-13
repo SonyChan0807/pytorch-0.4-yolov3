@@ -1,7 +1,7 @@
 import sys
 import time
 from PIL import Image, ImageDraw
-import cv2
+# import cv2
 import os
 import argparse
 
