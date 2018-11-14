@@ -43,6 +43,19 @@ def model(cfg_file, weight_file):
 
     return m
 
+def boxes_to_file(file_path, boxes):
+    annos = []
+    for box in boxes:
+        box = [ str(b.item()) for b in box]
+        yolo_str = " ".join([box[6], box[0], box[1], box[2], box[3]])
+        annos.append(yolo_str)
+    with open(file_path, "+w") as f:
+        f.write("\n".join(annos))    
+        print("Save result to {}".format(file_path))
+
+
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -51,6 +64,9 @@ if __name__ == '__main__':
     parser.add_argument('--names', '-n', type=str, help='path of class names')
     parser.add_argument('--src_path', '-sp', type=str, help='folder path to source images')
     parser.add_argument('--output_path', '-op', type=str, default='.', help='folder path to output images')
+    parser.add_argument('--save_anno', '-s',
+        action="store_true", default=False, help='Save result in to text file in yolo format')
+    
     opt = parser.parse_args()
     
 
@@ -60,7 +76,7 @@ if __name__ == '__main__':
     model = model(opt.cfg, opt.weights)
     use_cuda = torch.cuda.is_available()
     if use_cuda:
-        m.cuda()
+        model.cuda()
 
     included_extention = ('jpg', 'bmp', 'png', 'gif')
     img_generator = (img for img in os.listdir(opt.src_path) if img.endswith(included_extention))
@@ -70,13 +86,12 @@ if __name__ == '__main__':
 
     for img_path in img_generator:
         print(img_path)
-        # img = cv2.imread(os.path.join(opt.src_path,img_path))
         img = Image.open(os.path.join(opt.src_path,img_path)).convert('RGB')
-        # img = img_to_32_multiplier(img)
         boxes = detect(model, img, img_path, use_cuda)
-        # boxes = detect_cv2(model, img, img_path, use_cuda)
-        # plot_boxes_cv2(img, boxes, os.path.join(opt.output_path,img_path), class_names)
-
-        plot_boxes(img, boxes, os.path.join(opt.output_path,img_path.split(".")[0] + "_pil." + img_path.split(".")[1]), class_names)
+        output_img_path = os.path.join(opt.output_path,img_path)
+        output_txt_path = output_img_path.replace("jpg", "txt")
+        if opt.save_anno:
+            boxes_to_file(output_txt_path, boxes)
+        plot_boxes(img, boxes, output_img_path, class_names)
 
 
